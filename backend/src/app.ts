@@ -20,7 +20,7 @@ const csrfProtection = csrf({ cookie: true })
 
 app.use(cors())
 // app.use(cors({ origin: ORIGIN_ALLOW, credentials: true }));
-// app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }))
 
 app.use(limiter)
 
