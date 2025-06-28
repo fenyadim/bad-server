@@ -4,11 +4,12 @@ import cors from 'cors'
 import csrf from 'csurf'
 import 'dotenv/config'
 import express, { json, urlencoded } from 'express'
+import rateLimit from 'express-rate-limit'
 import mongoose from 'mongoose'
 import path from 'path'
 import { DB_ADDRESS, ORIGIN_ALLOW } from './config'
 import errorHandler from './middlewares/error-handler'
-import limiter from './middlewares/limiter'
+
 import serveStatic from './middlewares/serverStatic'
 import routes from './routes'
 
@@ -27,6 +28,12 @@ app.use(urlencoded({ extended: true }))
 app.use(json())
 
 app.options('*', cors())
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+})
+
 app.use(limiter)
 app.use(routes)
 app.use(errors())
