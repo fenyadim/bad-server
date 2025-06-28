@@ -31,8 +31,6 @@ export type ApiListResponse<Type> = {
     items: Type[]
 }
 
-const csrfToken = await getCsrfToken()
-
 class Api {
     private readonly baseUrl: string
     protected options: RequestInit
@@ -58,6 +56,14 @@ class Api {
 
     protected async request<T>(endpoint: string, options: RequestInit) {
         try {
+            const method = options.method?.toUpperCase() || 'GET'
+            if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+                const csrfToken = await getCsrfToken()
+                options.headers = {
+                    ...options.headers,
+                    'X-CSRF-Token': csrfToken,
+                }
+            }
             const res = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...this.options,
                 ...options,
@@ -156,7 +162,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${getCookie('accessToken')}`,
-                'X-CSRF-Token': csrfToken,
             },
         }).then((data: IOrderResult) => data)
     }
@@ -171,7 +176,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${getCookie('accessToken')}`,
-                'X-CSRF-Token': csrfToken,
             },
         })
     }
@@ -188,7 +192,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getCookie('accessToken')}`,
-                    'X-CSRF-Token': csrfToken,
                 },
             }
         )
@@ -206,7 +209,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getCookie('accessToken')}`,
-                    'X-CSRF-Token': csrfToken,
                 },
             }
         )
@@ -217,7 +219,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${getCookie('accessToken')}`,
-                'X-CSRF-Token': csrfToken,
             },
         })
     }
@@ -231,7 +232,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getCookie('accessToken')}`,
-                    'X-CSRF-Token': csrfToken,
                 },
             }
         )
@@ -243,7 +243,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             body: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken,
             },
             credentials: 'include',
         })
@@ -255,7 +254,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             body: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken,
             },
             credentials: 'include',
         })
@@ -287,7 +285,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getCookie('accessToken')}`,
-                    'X-CSRF-Token': csrfToken,
                 },
             }
         )
@@ -300,7 +297,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getCookie('accessToken')}`,
-                    'X-CSRF-Token': csrfToken,
                 },
             }
         )
@@ -337,7 +333,6 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
             body: data,
             headers: {
                 Authorization: `Bearer ${getCookie('accessToken')}`,
-                'X-CSRF-Token': csrfToken,
             },
         }).then((data) => ({
             ...data,
