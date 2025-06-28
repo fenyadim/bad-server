@@ -17,6 +17,7 @@ import {
     UserResponseToken,
 } from '@types'
 import { getCookie, setCookie } from './cookie'
+import { getCsrfToken } from './getCsrfToken'
 
 export const enum RequestStatus {
     Idle = 'idle',
@@ -55,6 +56,14 @@ class Api {
 
     protected async request<T>(endpoint: string, options: RequestInit) {
         try {
+            const method = options.method?.toUpperCase() || 'GET'
+            if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+                const csrfToken = await getCsrfToken()
+                options.headers = {
+                    ...options.headers,
+                    'X-CSRF-Token': csrfToken,
+                }
+            }
             const res = await fetch(`${this.baseUrl}${endpoint}`, {
                 ...this.options,
                 ...options,
@@ -208,7 +217,9 @@ export class WebLarekAPI extends Api implements IWebLarekAPI {
     getOrderByNumber = (orderNumber: string): Promise<IOrderResult> => {
         return this.requestWithRefresh<IOrderResult>(`/order/${orderNumber}`, {
             method: 'GET',
-            headers: { Authorization: `Bearer ${getCookie('accessToken')}` },
+            headers: {
+                Authorization: `Bearer ${getCookie('accessToken')}`,
+            },
         })
     }
 

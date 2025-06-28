@@ -3,6 +3,7 @@ import DetailInfo from '@components/detail-info'
 import { OrderData } from '@slices/orders/type'
 import clsx from 'clsx'
 import { format } from 'date-fns'
+import DOMPurify from 'dompurify'
 import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from '../../services/hooks'
@@ -73,7 +74,9 @@ export default function ProfileOrderDetail() {
                         {dataInfo.comment ? (
                             <div
                                 dangerouslySetInnerHTML={{
-                                    __html: dataInfo.comment,
+                                    __html: DOMPurify.sanitize(
+                                        dataInfo.comment
+                                    ),
                                 }}
                             />
                         ) : (
