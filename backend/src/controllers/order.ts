@@ -29,8 +29,11 @@ export const getOrders = async (
         } = req.query
 
         const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Math.min(Math.max(1, Number(req.query.limit) || 10), 10);
-        const normalizedLimit = limit;
+        const limit = Number(req.query.limit) || 10;
+        if (limit > 10) {
+            return next(new BadRequestError('Лимит не может превышать 10'));
+        }
+        const normalizedLimit = Math.min(Math.max(1, limit), 10);
 
         const filters: FilterQuery<Partial<IOrder>> = {}
 
