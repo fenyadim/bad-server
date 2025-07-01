@@ -28,12 +28,32 @@ export const getOrders = async (
             search,
         } = req.query
 
-        const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Number(req.query.limit) || 10;
-        if (limit > 10) {
-            return next(new BadRequestError('Лимит не может превышать 10'));
+        // Строгая валидация limit
+        const limitRaw = req.query.limit;
+        if (limitRaw !== undefined && (typeof limitRaw !== 'string' || !/^\d+$/.test(limitRaw))) {
+            return next(new BadRequestError('Некорректный лимит'));
         }
-        const normalizedLimit = Math.min(Math.max(1, limit), 10);
+        const limit = limitRaw !== undefined ? Number(limitRaw) : 10;
+        if (!Number.isInteger(limit) || limit < 1 || limit > 10) {
+            return next(new BadRequestError('Лимит должен быть целым числом от 1 до 10'));
+        }
+        // Строгая валидация page
+        const pageRaw = req.query.page;
+        if (pageRaw !== undefined && (typeof pageRaw !== 'string' || !/^\d+$/.test(pageRaw))) {
+            return next(new BadRequestError('Некорректная страница'));
+        }
+        const page = pageRaw !== undefined ? Math.max(1, Number(pageRaw)) : 1;
+
+        // Валидация sortField и sortOrder
+        const allowedSortFields = ['createdAt', 'totalAmount', 'orderNumber', 'status'];
+        const allowedSortOrders = ['asc', 'desc'];
+        if (sortField && !allowedSortFields.includes(sortField as string)) {
+            return next(new BadRequestError('Недопустимое поле сортировки'));
+        }
+        if (sortOrder && !allowedSortOrders.includes(sortOrder as string)) {
+            return next(new BadRequestError('Недопустимый порядок сортировки'));
+        }
+        const normalizedLimit = limit;
 
         const filters: FilterQuery<Partial<IOrder>> = {}
 
