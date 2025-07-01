@@ -1,3 +1,4 @@
+import { celebrate, Joi, Segments } from 'celebrate'
 import { NextFunction, Request, Response, Router } from 'express'
 import NotFoundError from '../errors/not-found-error'
 
@@ -15,6 +16,14 @@ router.use('/product', productRouter)
 router.use(
     '/order',
     auth,
+    celebrate({
+        [Segments.QUERY]: Joi.object().keys({
+            limit: Joi.number().integer().min(1).max(10).default(10),
+            skip: Joi.number().integer().min(0).default(0),
+            sortField: Joi.string().valid('createdAt', 'totalAmount', 'orderNumber', 'status'),
+            sortOrder: Joi.string().valid('asc', 'desc'),
+        }),
+    }),
     orderRouter
 )
 router.use('/upload', auth, uploadRouter)

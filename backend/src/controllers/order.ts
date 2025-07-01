@@ -17,9 +17,13 @@ export const getOrders = async (
     next: NextFunction
 ) => {
     try {
+        // Получаем параметры после валидации Joi
+        const normalizedLimit = Number(req.query.limit) || 10;
+        const page = req.query.page ? Math.max(1, Number(req.query.page)) : 1;
+        const sortField = req.query.sortField ? String(req.query.sortField) : 'createdAt';
+        const sortOrder = req.query.sortOrder ? String(req.query.sortOrder) : 'desc';
+
         const {
-            sortField = 'createdAt',
-            sortOrder = 'desc',
             status,
             totalAmountFrom,
             totalAmountTo,
@@ -27,35 +31,6 @@ export const getOrders = async (
             orderDateTo,
             search,
         } = req.query
-
-        // Мягкая нормализация limit
-        let limit = 10;
-        if (req.query.limit !== undefined && /^\d+$/.test(String(req.query.limit))) {
-            limit = Math.min(Math.max(1, Number(req.query.limit)), 10);
-        }
-        // Строгая валидация page
-        const pageRaw = req.query.page;
-        if (pageRaw !== undefined && (typeof pageRaw !== 'string' || !/^\d+$/.test(pageRaw))) {
-            return next(new BadRequestError('Некорректная страница'));
-        }
-        const page = pageRaw !== undefined ? Math.max(1, Number(pageRaw)) : 1;
-
-        // Валидация sortField и sortOrder (строго: только undefined или строка из разрешённых)
-        const allowedSortFields = ['createdAt', 'totalAmount', 'orderNumber', 'status'];
-        const allowedSortOrders = ['asc', 'desc'];
-        if (
-            sortField !== undefined &&
-            (typeof sortField !== 'string' || !allowedSortFields.includes(sortField))
-        ) {
-            return next(new BadRequestError('Недопустимое поле сортировки'));
-        }
-        if (
-            sortOrder !== undefined &&
-            (typeof sortOrder !== 'string' || !allowedSortOrders.includes(sortOrder))
-        ) {
-            return next(new BadRequestError('Недопустимый порядок сортировки'));
-        }
-        const normalizedLimit = limit;
 
         const filters: FilterQuery<Partial<IOrder>> = {}
 
