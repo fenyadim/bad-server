@@ -40,13 +40,13 @@ export const getOrders = async (
         }
         const page = pageRaw !== undefined ? Math.max(1, Number(pageRaw)) : 1;
 
-        // Валидация sortField и sortOrder
+        // Валидация sortField и sortOrder (только строки)
         const allowedSortFields = ['createdAt', 'totalAmount', 'orderNumber', 'status'];
         const allowedSortOrders = ['asc', 'desc'];
-        if (sortField && !allowedSortFields.includes(sortField as string)) {
+        if (typeof sortField !== 'string' || !allowedSortFields.includes(sortField)) {
             return next(new BadRequestError('Недопустимое поле сортировки'));
         }
-        if (sortOrder && !allowedSortOrders.includes(sortOrder as string)) {
+        if (typeof sortOrder !== 'string' || !allowedSortOrders.includes(sortOrder)) {
             return next(new BadRequestError('Недопустимый порядок сортировки'));
         }
         const normalizedLimit = limit;
