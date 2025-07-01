@@ -18,7 +18,7 @@ export const getOrders = async (
 ) => {
     try {
         // Получаем параметры после валидации Joi
-        const normalizedLimit = Number(req.query.limit) || 10;
+        const normalizedLimit = Math.min(Number(req.query.limit) || 10, 10);
         const page = req.query.page ? Math.max(1, Number(req.query.page)) : 1;
         const sortField = req.query.sortField ? String(req.query.sortField) : 'createdAt';
         const sortOrder = req.query.sortOrder ? String(req.query.sortOrder) : 'desc';
