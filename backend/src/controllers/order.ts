@@ -18,11 +18,14 @@ export const getOrders = async (
 ) => {
     try {
         // Получаем параметры после валидации Joi
-        let limit = Number(req.query.limit);
-        if (!Number.isInteger(limit) || limit < 1) {
-            limit = 10;
+        let limit = 10;
+        if (
+            typeof req.query.limit === 'string' &&
+            /^\d+$/.test(req.query.limit)
+        ) {
+            limit = Math.min(Number(req.query.limit), 10);
         }
-        const normalizedLimit = Math.min(limit, 10);
+        const normalizedLimit = limit;
         const page = req.query.page ? Math.max(1, Number(req.query.page)) : 1;
         const sortField = req.query.sortField ? String(req.query.sortField) : 'createdAt';
         const sortOrder = req.query.sortOrder ? String(req.query.sortOrder) : 'desc';
