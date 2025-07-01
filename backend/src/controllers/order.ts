@@ -89,8 +89,8 @@ export const getOrders = async (
                     as: 'customer',
                 },
             },
-            { $unwind: '$customer' },
-            { $unwind: '$products' },
+            { $unwind: { path: '$customer', preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: '$products', preserveNullAndEmptyArrays: true } },
         ]
 
         if (search) {
