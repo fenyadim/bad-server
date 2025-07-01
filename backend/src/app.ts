@@ -38,7 +38,7 @@ const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
     handler: (req, res) => {
-        res.status(429).json({ message: 'Слишком много запросов, попробуйте позже.' });
+        res.status(429).json({ error: 'Слишком много запросов, попробуйте позже.' });
     }
 })
 
