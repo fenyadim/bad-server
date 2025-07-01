@@ -28,14 +28,10 @@ export const getOrders = async (
             search,
         } = req.query
 
-        // Строгая валидация limit
-        const limitRaw = req.query.limit;
-        if (limitRaw !== undefined && (typeof limitRaw !== 'string' || !/^\d+$/.test(limitRaw))) {
-            return next(new BadRequestError('Некорректный лимит'));
-        }
-        const limit = limitRaw !== undefined ? Number(limitRaw) : 10;
-        if (!Number.isInteger(limit) || limit < 1 || limit > 10) {
-            return next(new BadRequestError('Лимит должен быть целым числом от 1 до 10'));
+        // Мягкая нормализация limit
+        let limit = 10;
+        if (req.query.limit !== undefined && /^\d+$/.test(String(req.query.limit))) {
+            limit = Math.min(Math.max(1, Number(req.query.limit)), 10);
         }
         // Строгая валидация page
         const pageRaw = req.query.page;

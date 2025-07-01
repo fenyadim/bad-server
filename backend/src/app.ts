@@ -36,9 +36,13 @@ app.options('*', cors())
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 3,
     handler: (req, res) => {
-        res.status(429).json({ error: 'Слишком много запросов, попробуйте позже.' });
+        res.set('Retry-After', String(15 * 60));
+        res.status(429).json({
+            error: 'Too many requests',
+            message: 'Слишком много запросов, попробуйте позже.'
+        });
     }
 })
 
