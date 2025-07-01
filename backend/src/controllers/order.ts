@@ -18,8 +18,6 @@ export const getOrders = async (
 ) => {
     try {
         const {
-            page = 1,
-            limit = 10,
             sortField = 'createdAt',
             sortOrder = 'desc',
             status,
@@ -30,7 +28,9 @@ export const getOrders = async (
             search,
         } = req.query
 
-        const normalizedLimit = Math.min(Number(limit) || 10, 10)
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, Number(req.query.limit) || 10), 10);
+        const normalizedLimit = limit;
 
         const filters: FilterQuery<Partial<IOrder>> = {}
 
@@ -120,7 +120,7 @@ export const getOrders = async (
 
         aggregatePipeline.push(
             { $sort: sort },
-            { $skip: (Number(page) - 1) * normalizedLimit },
+            { $skip: (page - 1) * normalizedLimit },
             { $limit: normalizedLimit },
             {
                 $group: {
@@ -144,7 +144,7 @@ export const getOrders = async (
             pagination: {
                 totalOrders,
                 totalPages,
-                currentPage: Number(page),
+                currentPage: page,
                 pageSize: normalizedLimit,
             },
         })
@@ -160,10 +160,12 @@ export const getOrdersCurrentUser = async (
 ) => {
     try {
         const userId = res.locals.user._id
-        const { search, page = 1, limit = 5 } = req.query
-        const normalizedLimit = Math.min(Number(limit) || 5, 10)
+        const { search } = req.query
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.min(Math.max(1, Number(req.query.limit) || 10), 10);
+        const normalizedLimit = limit;
         const options = {
-            skip: (Number(page) - 1) * normalizedLimit,
+            skip: (page - 1) * normalizedLimit,
             limit: normalizedLimit,
         }
 
@@ -219,7 +221,7 @@ export const getOrdersCurrentUser = async (
             pagination: {
                 totalOrders,
                 totalPages,
-                currentPage: Number(page),
+                currentPage: page,
                 pageSize: normalizedLimit,
             },
         })
