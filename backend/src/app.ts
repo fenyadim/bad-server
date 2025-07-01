@@ -36,7 +36,7 @@ app.options('*', cors())
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 1000,
     handler: (req, res) => {
         res.set('Retry-After', String(15 * 60));
         res.status(429).json({
