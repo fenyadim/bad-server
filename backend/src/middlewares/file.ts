@@ -1,9 +1,23 @@
-import { Request, Express } from 'express'
+import { Request } from 'express'
+import fs from 'fs'
 import multer, { FileFilterCallback } from 'multer'
 import { join } from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void
+
+const getSafeUploadPath = () => {
+    const uploadPath = process.env.UPLOAD_PATH_TEMP || ''
+    if (uploadPath.includes('..') || uploadPath.startsWith('/')) {
+        throw new Error('Недопустимый путь для загрузки файлов')
+    }
+    const fullPath = join(__dirname, `../public/${uploadPath}`)
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true })
+    }
+    return uploadPath
+}
 
 const storage = multer.diskStorage({
     destination: (
@@ -15,8 +29,8 @@ const storage = multer.diskStorage({
             null,
             join(
                 __dirname,
-                process.env.UPLOAD_PATH_TEMP
-                    ? `../public/${process.env.UPLOAD_PATH_TEMP}`
+                getSafeUploadPath()
+                    ? `../public/${getSafeUploadPath()}`
                     : '../public'
             )
         )
@@ -27,7 +41,7 @@ const storage = multer.diskStorage({
         file: Express.Multer.File,
         cb: FileNameCallback
     ) => {
-        cb(null, file.originalname)
+        cb(null, uuidv4())
     },
 })
 
@@ -48,7 +62,17 @@ const fileFilter = (
         return cb(null, false)
     }
 
+    if (file.size < 2 * 1024) {
+        return cb(null, false)
+    }
+
     return cb(null, true)
 }
 
-export default multer({ storage, fileFilter })
+export default multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+})
