@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
+import md5 from 'md5'
 import mongoose, { Document, HydratedDocument, Model, Types } from 'mongoose'
 import validator from 'validator'
-import md5 from 'md5'
 
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../config'
 import UnauthorizedError from '../errors/unauthorized-error'
@@ -13,7 +13,7 @@ export enum Role {
     Admin = 'admin',
 }
 
-export interface IUser extends Document {
+export interface IUser extends Document<any> {
     name: string
     email: string
     password: string
