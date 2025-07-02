@@ -133,3 +133,20 @@ export const validateAuthentication = celebrate({
         }),
     }),
 })
+
+export const validateOrdersQuery = celebrate({
+    query: Joi.object().keys({
+      page: Joi.number().integer().min(1).default(1),
+      limit: Joi.number().integer().min(1).default(10),
+      sortField: Joi.string()
+        .valid('createdAt', 'totalAmount', 'orderNumber')
+        .default('createdAt'),
+      sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
+      status: Joi.string(),
+      search: Joi.string(),
+      totalAmountFrom: Joi.number(),
+      totalAmountTo: Joi.number(),
+      orderDateFrom: Joi.date(),
+      orderDateTo: Joi.date(),
+    }),
+  });
