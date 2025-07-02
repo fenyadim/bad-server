@@ -62,10 +62,6 @@ const fileFilter = (
         return cb(null, false)
     }
 
-    if (file.size < 2 * 1024) {
-        return cb(null, false)
-    }
-
     return cb(null, true)
 }
 

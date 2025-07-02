@@ -26,8 +26,8 @@ app.use(cors({ origin: ORIGIN_ALLOW, credentials: true }))
 
 app.use(serveStatic(path.join(__dirname, 'public')))
 
-app.use(urlencoded({ extended: true }))
-app.use(json())
+app.use(urlencoded({ extended: true, limit: '10mb' }))
+app.use(json({limit: '10mb'}))
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -36,7 +36,7 @@ const limiter = rateLimit({
 })
 
 app.use(limiter)
-app.options('*', cors())
+app.options('*', cors({ origin: ORIGIN_ALLOW, credentials: true }))
 app.use(routes)
 app.use(errors())
 app.use(errorHandler)
